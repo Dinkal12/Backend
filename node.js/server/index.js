@@ -16,7 +16,6 @@ const myServer = http.createServer((req, res) => {
         }
 
         console.log(req.url);
-        res.end("Hello World");
     });
 });
 
