@@ -1,0 +1,13 @@
+{
+  "name": "star",
+  "version": "1.0.0",
+  "description": "naah",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "hey.js",
+  "scripts": {
+    "start":"node hey.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
