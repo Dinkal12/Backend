@@ -41,7 +41,7 @@ const User = mongoose.model("User", UserSchema);
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
-// Middleware - plugins
+// Middleware-lugins
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
     console.log("middleware 1");
