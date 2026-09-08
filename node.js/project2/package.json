@@ -12,10 +12,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "mongoose": "^9.9.5",
-    "nanoid": "^5.1.16"
+    "nanoid": "^5.1.16",
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.12"
