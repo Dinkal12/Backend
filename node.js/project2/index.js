@@ -1,5 +1,7 @@
 const express = require("express");
 const connectToMongoDB = require("./connection");
+const path = require("path");
+const staticRouter = require("./routes/staticRouter");
 const app = express();
 const urlRoute = require("./routes/url");
 const URL = require("./models/url");
@@ -14,10 +16,10 @@ connectToMongoDB("mongodb://localhost:27017/URL-shortener")
     console.log(err);
 })
 app.use(express.json());
+app.set("view engine", "ejs");
+app.set("views", path.resolve("./views"));
 
-app.get("/", (req, res) => {
-    res.send("Hello World")
-});
+app.use("/",staticRouter);
 app.use('/url',urlRoute)
 
 app.get("/test/:shortId", async (req,res)=>{
@@ -28,6 +30,7 @@ app.get("/test/:shortId", async (req,res)=>{
                 timestamp : Date.now(),
             },
         },
+        $inc : { totalClicks : 1 },
     });
     res.redirect(entry.redirectedUrl);
 });
