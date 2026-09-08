@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapURL – Shorten Any Link Instantly</title>
+    <meta name="description" content="SnapURL is a fast, free, and beautiful URL shortener. Paste your long URL and get a clean, shareable short link in seconds.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-hover: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.1);
+            --border-active: rgba(139, 92, 246, 0.6);
+            --text-primary: #f0f0ff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #606080;
+            --accent-1: #8b5cf6;
+            --accent-2: #06b6d4;
+            --accent-3: #ec4899;
+            --gradient-hero: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            --gradient-btn: linear-gradient(135deg, #8b5cf6, #6366f1);
+            --shadow-glow: 0 0 60px rgba(139, 92, 246, 0.25);
+            --radius: 16px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: float 12s ease-in-out infinite;
+        }
+        .orb-1 { width: 600px; height: 600px; background: var(--accent-1); top: -200px; left: -150px; animation-delay: 0s; }
+        .orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -150px; right: -100px; animation-delay: -4s; }
+        .orb-3 { width: 350px; height: 350px; background: var(--accent-3); top: 40%; left: 55%; animation-delay: -8s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33%       { transform: translate(30px, -30px) scale(1.05); }
+            66%       { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* Layout */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--gradient-hero);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            -webkit-text-fill-color: white;
+        }
+        .nav-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 100px;
+        }
+
+        /* Hero */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 60px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #c4b5fd;
+            margin-bottom: 32px;
+            animation: fadeDown 0.6s ease both;
+        }
+        .badge-dot {
+            width: 7px; height: 7px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: pulse 2s ease infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(1.4); }
+        }
+
+        h1 {
+            font-size: clamp(2.6rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            animation: fadeDown 0.6s 0.1s ease both;
+        }
+        .gradient-text {
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 56px;
+            font-weight: 400;
+            animation: fadeDown 0.6s 0.2s ease both;
+        }
+
+        /* Card */
+        .card {
+            width: 100%;
+            max-width: 660px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: var(--shadow-glow), 0 40px 80px rgba(0,0,0,0.4);
+            animation: fadeUp 0.7s 0.3s ease both;
+            transition: border-color 0.3s;
+        }
+        .card:hover { border-color: rgba(139, 92, 246, 0.25); }
+
+        .card-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .url-input {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+        }
+        .url-input::placeholder { color: var(--text-muted); }
+        .url-input:focus {
+            border-color: var(--border-active);
+            background: rgba(139, 92, 246, 0.07);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
+        }
+
+        .shorten-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-btn);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 26px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+        .shorten-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.55);
+            filter: brightness(1.1);
+        }
+        .shorten-btn:active { transform: translateY(0); }
+
+        /* Result box */
+        .result-box {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: rgba(6, 182, 212, 0.08);
+            border: 1.5px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 4px;
+            animation: popIn 0.4s ease;
+        }
+        .result-box.show { display: flex; }
+        .result-link {
+            flex: 1;
+            color: var(--accent-2);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .result-link:hover { text-decoration: underline; }
+        .copy-btn {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            color: var(--accent-2);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+        .copy-btn:hover { background: rgba(6, 182, 212, 0.28); transform: scale(1.04); }
+        .copy-btn.copied { color: #34d399; border-color: rgba(52, 211, 153, 0.4); background: rgba(52, 211, 153, 0.1); }
+
+        /* Error */
+        .error-msg {
+            display: none;
+            color: #f87171;
+            font-size: 0.84rem;
+            font-weight: 500;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+            border-radius: 10px;
+        }
+        .error-msg.show { display: block; }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 64px;
+            flex-wrap: wrap;
+            animation: fadeUp 0.7s 0.5s ease both;
+        }
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--border);
+            align-self: center;
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            max-width: 660px;
+            width: 100%;
+            margin-top: 28px;
+            animation: fadeUp 0.7s 0.45s ease both;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .feature:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        .feature-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+        /* Links table section */
+        .links-section {
+            width: 100%;
+            max-width: 860px;
+            margin: 60px auto 0;
+            padding: 0 24px;
+            animation: fadeUp 0.7s 0.6s ease both;
+        }
+        .links-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .links-section-title span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(139,92,246,0.15);
+            border: 1px solid rgba(139,92,246,0.3);
+            color: #c4b5fd;
+            padding: 3px 10px;
+            border-radius: 100px;
+        }
+        .links-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+        }
+        .links-table thead tr {
+            background: rgba(139,92,246,0.08);
+            border-bottom: 1px solid var(--border);
+        }
+        .links-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            padding: 14px 18px;
+        }
+        .links-table td {
+            padding: 14px 18px;
+            font-size: 0.87rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+        }
+        .links-table tbody tr:last-child td { border-bottom: none; }
+        .links-table tbody tr {
+            transition: background 0.2s;
+        }
+        .links-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .short-link-cell a {
+            color: var(--accent-2);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.88rem;
+        }
+        .short-link-cell a:hover { text-decoration: underline; }
+        .original-url-cell {
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+        .clicks-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(139,92,246,0.12);
+            border: 1px solid rgba(139,92,246,0.2);
+            color: #c4b5fd;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 100px;
+        }
+        .table-copy-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+        .table-copy-btn:hover { background: rgba(6,182,212,0.1); color: var(--accent-2); border-color: rgba(6,182,212,0.3); }
+        .table-copy-btn.copied { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08); }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 28px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Keyframes */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading .spinner { display: block; }
+        .loading .btn-icon { display: none; }
+        .loading .btn-text { opacity: 0.7; }
+
+        @media (max-width: 540px) {
+            nav { padding: 16px 20px; }
+            .card { padding: 24px 18px; border-radius: 18px; }
+            .input-group { flex-direction: column; }
+            .shorten-btn { width: 100%; justify-content: center; }
+            .stats { gap: 24px; }
+            .stat-divider { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav>
+            <a href="/" class="logo">
+                <div class="logo-icon">&#9889;</div>
+                SnapURL
+            </a>
+            <span class="nav-tag">Free &amp; Fast</span>
+        </nav>
+
+        <!-- Hero -->
+        <main class="hero">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                No sign-up required
+            </div>
+
+            <h1>
+                Shorten Your Links<br>
+                <span class="gradient-text">Instantly &amp; For Free</span>
+            </h1>
+
+            <p class="subtitle">
+                Transform long, clunky URLs into clean, shareable short links.
+                Fast, reliable, and completely free — forever.
+            </p>
+
+            <!-- Main card -->
+            <div class="card">
+                <label class="card-label" for="urlInput">Paste your long URL</label>
+
+                <div class="input-group">
+                    <input
+                        id="urlInput"
+                        class="url-input"
+                        type="url"
+                        placeholder="https://example.com/very/long/url/that/needs/shortening"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button id="shortenBtn" class="shorten-btn" onclick="shortenUrl()">
+                        <span class="btn-icon">&#9988;</span>
+                        <span class="btn-text">Shorten</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+
+                <!-- Result -->
+                <div id="resultBox" class="result-box">
+                    <a id="resultLink" class="result-link" href="#" target="_blank" rel="noopener"></a>
+                    <button id="copyBtn" class="copy-btn" onclick="copyLink()">Copy</button>
+                </div>
+
+                <!-- Error -->
+                <div id="errorMsg" class="error-msg"></div>
+            </div>
+
+            <!-- Feature pills -->
+            <div class="features">
+                <div class="feature"><span class="feature-icon">&#9889;</span> Instant shortening</div>
+                <div class="feature"><span class="feature-icon">&#128274;</span> Secure &amp; reliable</div>
+                <div class="feature"><span class="feature-icon">&#128202;</span> Click tracking</div>
+                <div class="feature"><span class="feature-icon">&#8734;</span> Never expires</div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number"><%= urls.length %></span>
+                    <span class="stat-label">Links Shortened</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-number">&lt;1s</span>
+                    <span class="stat-label">Response Time</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Links Table -->
+        <section class="links-section">
+            <div class="links-section-title">
+                &#128279; Your Links
+                <span><%= urls.length %> total</span>
+            </div>
+
+            <% if (urls.length === 0) { %>
+            <div class="links-table" style="border-radius:16px;">
+                <div class="empty-state">
+                    <div class="empty-icon">&#128279;</div>
+                    No links yet — shorten your first URL above!
+                </div>
+            </div>
+            <% } else { %>
+            <table class="links-table">
+                <thead>
+                    <tr>
+                        <th>Short Link</th>
+                        <th>Original URL</th>
+                        <th>Clicks</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% urls.slice().reverse().forEach(url => { %>
+                    <tr>
+                        <td class="short-link-cell">
+                            <a href="/test/<%= url.shortId %>" target="_blank" rel="noopener">
+                                /test/<%= url.shortId %>
+                            </a>
+                        </td>
+                        <td class="original-url-cell" title="<%= url.redirectedUrl %>">
+                            <%= url.redirectedUrl %>
+                        </td>
+                        <td>
+                            <span class="clicks-badge">&#128293; <%= url.totalClicks %></span>
+                        </td>
+                        <td style="color:var(--text-muted);font-size:0.8rem;">
+                            <%= new Date(url.createdAt).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) %>
+                        </td>
+                        <td>
+                            <button
+                                class="table-copy-btn"
+                                onclick="tableCopy(this, 'http://localhost:8000/test/<%= url.shortId %>')"
+                            >Copy</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } %>
+        </section>
+
+        <footer style="margin-top:60px;">
+            &copy; 2026 SnapURL &mdash; Built with &#10084;&#65039; for the web
+        </footer>
+    </div>
+
+    <script>
+        const urlInput   = document.getElementById('urlInput');
+        const resultBox  = document.getElementById('resultBox');
+        const resultLink = document.getElementById('resultLink');
+        const errorMsg   = document.getElementById('errorMsg');
+        const shortenBtn = document.getElementById('shortenBtn');
+        const copyBtn    = document.getElementById('copyBtn');
+
+        // Allow Enter key
+        urlInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') shortenUrl();
+        });
+
+        async function shortenUrl() {
+            const url = urlInput.value.trim();
+
+            // Reset state
+            resultBox.classList.remove('show');
+            errorMsg.classList.remove('show');
+            copyBtn.classList.remove('copied');
+            copyBtn.textContent = 'Copy';
+
+            if (!url) {
+                showError('Please enter a URL to shorten.');
+                urlInput.focus();
+                return;
+            }
+
+            try { new URL(url); } catch {
+                showError('Please enter a valid URL (include https://).');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const res = await fetch('/url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.message || 'Something went wrong.');
+
+                const shortUrl = `${window.location.origin}/test/${data.shortId}`;
+                resultLink.href = shortUrl;
+                resultLink.textContent = shortUrl;
+                resultBox.classList.add('show');
+                resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Reload after short delay so the table updates with the new link
+                setTimeout(() => window.location.reload(), 1800);
+
+            } catch (err) {
+                showError(err.message || 'Failed to shorten URL. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function copyLink() {
+            const text = resultLink.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                }, 2500);
+            });
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+        }
+
+        function setLoading(state) {
+            shortenBtn.classList.toggle('loading', state);
+            shortenBtn.disabled = state;
+        }
+
+        function tableCopy(btn, url) {
+            navigator.clipboard.writeText(url).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2200);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -12,7 +12,7 @@ async function handleGenerateNewURL(req, res) {
             redirectedUrl: body.url,
             visitedHistory: [],
         });
-        return res.json({ id: shortID });
+        return res.json({ shortId: shortID });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
