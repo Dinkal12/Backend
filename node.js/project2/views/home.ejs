@@ -553,7 +553,12 @@
                 <div class="logo-icon">&#9889;</div>
                 SnapURL
             </a>
-            <span class="nav-tag">Free &amp; Fast</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <span style="font-size:0.83rem;color:var(--text-secondary);font-weight:500;">
+                    &#128075; <%= user.name %>
+                </span>
+                <a href="/user/logout" style="font-size:0.78rem;font-weight:600;color:var(--text-muted);text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:5px 14px;border-radius:100px;transition:color 0.2s,border-color 0.2s;" onmouseover="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,0.4)'" onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border)'">Logout</a>
+            </div>
         </nav>
 
         <!-- Hero -->

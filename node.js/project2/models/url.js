@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
         type : Number,
         default : 0,
     },
+    createdBy : {
+        type :mongoose.Schema.Types.ObjectId,
+        required : true,
+        ref : 'user',
+    },
     visitedHistory : [{
         timestamp : {type : Number}
     }],

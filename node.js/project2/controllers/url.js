@@ -11,18 +11,19 @@ async function handleGenerateNewURL(req, res) {
             shortId: shortID,
             redirectedUrl: body.url,
             visitedHistory: [],
+            createdBy: req.user._id,
         });
         return res.json({ shortId: shortID });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
-
 }
 
-async function handleGetAnalytics(req, res){
+async function handleGetAnalytics(req, res) {
     const shortId = req.params.shortId;
-    const result = await URL.findOne({shortId});
-    return res.json({totalClicks: result.totalClicks, visitedHistory : result.visitedHistory});
+    const result = await URL.findOne({ shortId, createdBy: req.user._id });
+    if (!result) return res.status(404).json({ error: "Not found" });
+    return res.json({ totalClicks: result.totalClicks, visitedHistory: result.visitedHistory });
 }
 
 module.exports = { handleGenerateNewURL, handleGetAnalytics };
