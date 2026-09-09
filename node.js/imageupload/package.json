@@ -1,0 +1,16 @@
+{
+  "name": "imageupload",
+  "version": "1.0.0",
+  "description": "Image upload app with multer and EJS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "multer": "^2.3.0",
+    "nodemon": "^3.1.14"
+  }
+}
